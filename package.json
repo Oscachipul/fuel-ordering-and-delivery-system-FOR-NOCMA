@@ -1,0 +1,20 @@
+{
+  "name": "fuel-ordering-and-delivery-system-for-nocma",
+  "version": "1.0.0",
+  "main": "register.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "firebase": "^11.4.0",
+    "nodemailer": "^6.10.0"
+  }
+}

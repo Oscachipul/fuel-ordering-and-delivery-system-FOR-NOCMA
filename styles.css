@@ -1,0 +1,557 @@
+/* ==============================
+   Reset & General Styles 
+   ============================== */
+   * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
+                 "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    /* Fallback gradient in case image fails */
+    background: linear-gradient(135deg, #0066ff 0%, #2c3e50 100%);
+    /* Image path */
+    background-image: url('/assets/img/national_oil_company_of_malawi_ltd_cover.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+/* If the above path doesn't work, try this alternative: */
+/* background-image: url('../../assets/img/background.jpg'); */
+
+/* ==============================
+   Container Styling 
+   ============================== */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    /* Semi-transparent overlay */
+    background: rgba(0, 0, 0, 0.4);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==============================
+   Form Styling 
+   ============================== */
+.form-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 380px;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ==============================
+   Logo 
+   ============================== */
+.logo {
+    display: block;
+    width: 80px;
+    height: auto;
+    margin: 0 auto 24px;
+}
+
+/* ==============================
+   Headings 
+   ============================== */
+h1 {
+    color: #1a1a1a;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+p {
+    font-size: 14px;
+    color: #666;
+}
+
+/* ==============================
+   Input Fields & Select 
+   ============================== */
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fafafa;
+    color: #333;
+    font-size: 14px;
+    transition: border 0.3s;
+}
+
+input:focus, select:focus {
+    border: 1px solid #007BFF;
+    outline: none;
+}
+
+/* ==============================
+   Buttons 
+   ============================== */
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    margin-top: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Add spacing between buttons */
+.primary-button, .secondary-button {
+    margin-top: 10px;
+}
+
+/* Primary Button - Login & Sign Up */
+.primary-button {
+    width: 100%;
+    padding: 12px;
+    background: #0066ff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-top: 8px;
+    box-shadow: 0 2px 4px rgba(0, 102, 255, 0.2);
+}
+
+.primary-button:hover {
+    background: #0052cc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 102, 255, 0.2);
+}
+
+.primary-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 102, 255, 0.2);
+}
+
+.primary-button i {
+    margin-right: 8px;
+}
+
+/* Secondary Button - Create New Account */
+.account-link {
+    display: block;
+    text-align: center;
+    color: #0066ff;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    margin-top: 16px;
+    padding: 8px;
+    transition: color 0.2s ease;
+}
+
+.account-link:hover {
+    color: #0052cc;
+    text-decoration: underline;
+}
+
+/* ==============================
+   Text Button - Forgot Password 
+   ============================== */
+.text-button {
+    color: #0066ff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.text-button:hover {
+    color: #0052cc;
+}
+
+/* ==============================
+   Separator Line 
+   ============================== */
+.separator {
+    width: 100%;
+    height: 1px;
+    background: #ccc;
+    margin: 20px 0;
+}
+
+/* ==============================
+   Alert Message Box 
+   ============================== */
+.alert-box {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 69, 58, 0.9);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 1;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.alert-box.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* ==============================
+   Error Input Field 
+   ============================== */
+.input-error {
+    border-color: #ff4444 !important;
+    background: #fff5f5 !important;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+input {
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+/* ==============================
+   Back Link 
+   ============================== */
+.back-link {
+    color: #0066ff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: #0052cc;
+}
+
+/* ==============================
+   Hidden Class 
+   ============================== */
+.hidden {
+    display: none !important;
+}
+
+/* ==============================
+   Modal Styling 
+   ============================== */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 30%;
+    text-align: center;
+}
+
+/* ==============================
+   OTP Message Styling 
+   ============================== */
+.message {
+    display: none;
+    font-size: 14px;
+    margin-top: 5px;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+.message.success {
+    color: green;
+    background: #e6ffe6;
+}
+
+.message.error {
+    color: red;
+    background: #ffe6e6;
+}
+/* Error message style */
+.error-message {
+    color: #ff4444;
+    font-size: 12px;
+    margin-top: 4px;
+    padding-left: 12px;
+}
+
+/* Toast Container */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+/* Toast Notification */
+.toast {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    max-width: 300px;
+}
+
+.toast i {
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+/* Toast Types with Modern Colors */
+.toast-success {
+    border-left: 4px solid #00c851;
+}
+
+.toast-error {
+    border-left: 4px solid #ff4444;
+}
+
+.toast-warning {
+    border-left: 4px solid #ffbb33;
+}
+
+.toast-info {
+    border-left: 4px solid #0066ff;
+}
+
+/* Toast Content */
+.toast-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.toast-icon {
+    margin-right: 12px;
+    font-size: 24px;
+}
+
+.toast-message {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Progress Bar */
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.toast-progress-bar {
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    animation: progress 5s linear forwards;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes progress {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+.toast-fade-out {
+    animation: slideOut 0.3s ease-in-out forwards;
+}
+
+/* Update Input Groups - Remove all icon-related styles */
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 16px; /* Simplified padding without icon space */
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+/* Remove all icon-related styles */
+.input-group i,
+.input-group .field-icon,
+.input-group .password-toggle,
+.password-toggle,
+.field-icon {
+    display: none !important;
+}
+
+/* Update mobile styles */
+@media (max-width: 480px) {
+    .input-group input {
+        padding: 10px 14px; /* Remove extra padding for icons */
+    }
+}
+
+/* Password Strength Bar */
+.password-strength {
+    height: 3px;
+    background: #eee;
+    border-radius: 4px;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.strength-bar {
+    height: 100%;
+    width: 0;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.strength-weak { width: 33%; background: #ff4444; }
+.strength-medium { width: 66%; background: #ffbb33; }
+.strength-strong { width: 100%; background: #00c851; }
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-container {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Form Footer */
+.form-footer {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.form-footer p {
+    margin-top: 16px;
+    color: #666;
+    font-size: 14px;
+}
+
+.back-link {
+    color: #0066ff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: #0052cc;
+    text-decoration: underline;
+}
+
+/* Remove the old secondary button */
+.secondary-button {
+    display: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+    .form-container {
+        padding: 24px;
+        margin: 16px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+}

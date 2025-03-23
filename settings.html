@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOCMA - Settings</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Modern CSS Variables */
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --background-color: #f8fafc;
+            --sidebar-color: #1e293b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --surface-color: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition-all: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Modern Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--sidebar-color) 0%, #0f172a 100%);
+            padding: 1.5rem;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            transition: all 0.3s ease;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 1rem;
+        }
+
+        .sidebar-header img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header span {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            text-transform: uppercase;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-color);
+        }
+
+        .nav-item i {
+            margin-right: 1rem;
+            width: 20px;
+        }
+
+        .nav-item span {
+            font-weight: 500;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .user-avatar span {
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .user-avatar img:not([src]), 
+        .user-avatar img[src=""], 
+        .user-avatar img.error {
+            opacity: 0;
+        }
+
+        .user-avatar img:not([src]) + span,
+        .user-avatar img[src=""] + span,
+        .user-avatar img.error + span {
+            opacity: 1;
+        }
+
+        .text-secondary {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Settings Styles */
+        .settings-container {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Profile Settings Card - Full width on all screens */
+        .settings-container .settings-card:nth-child(1) {
+            grid-column: span 12;
+        }
+
+        /* Notification Settings Card - 6 columns on large screens */
+        .settings-container .settings-card:nth-child(2) {
+            grid-column: span 6;
+        }
+
+        /* Security Settings Card - 6 columns on large screens */
+        .settings-container .settings-card:nth-child(3) {
+            grid-column: span 6;
+        }
+
+        /* Enhanced Card Styles */
+        .settings-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+            border: none;
+            backdrop-filter: none;
+        }
+
+        .settings-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Card Header Styles */
+        .settings-card h2 {
+            position: relative;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .settings-card h2 i {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            background-color: rgba(37, 99, 235, 0.1);
+        }
+
+        /* Card Content Styles */
+        .settings-card form {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Form Group Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        /* Input Styles */
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-with-icon input,
+        .input-with-icon select,
+        .input-with-icon textarea {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid var(--border-color);
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            transition: var(--transition-all);
+            background: var(--surface-color);
+            color: var(--text-primary);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-secondary);
+            transition: var(--transition-all);
+            pointer-events: none;
+        }
+
+        .input-with-icon input:focus,
+        .input-with-icon select:focus,
+        .input-with-icon textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .input-with-icon input:focus + i,
+        .input-with-icon select:focus + i,
+        .input-with-icon textarea:focus + i {
+            color: var(--primary-color);
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-switch {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem;
+            border-radius: 1rem;
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .toggle-switch:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--border-color);
+            transition: var(--transition-all);
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            transition: var(--transition-all);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input:checked + .slider {
+            background: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        /* Danger Zone Styles */
+        .danger-zone {
+            margin-top: auto;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            background: linear-gradient(145deg, #fee2e2, #fecaca);
+            border: 2px dashed var(--danger-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .danger-zone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 48%, var(--danger-color) 49%, var(--danger-color) 51%, transparent 52%);
+            opacity: 0.1;
+            background-size: 10px 10px;
+        }
+
+        .danger-zone h3 {
+            color: var(--danger-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-all);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease-out, height 0.6s ease-out;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--text-secondary);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        /* Actions Container */
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Profile Picture Styles */
+        .profile-picture {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background: var(--background-color);
+            border: 4px solid var(--primary-color);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: var(--transition-all);
+        }
+
+        .profile-picture:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition-all);
+        }
+
+        .profile-picture-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 1.5rem;
+            color: white;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: var(--transition-all);
+        }
+
+        .profile-picture:hover .profile-picture-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .profile-picture-overlay i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Profile Info Styles */
+        .profile-info {
+            padding: 1rem;
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .profile-info p {
+            color: var(--text-secondary);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1200px) {
+            .settings-container {
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            /* Stack notification and security cards on medium screens */
+            .settings-container .settings-card:nth-child(2),
+            .settings-container .settings-card:nth-child(3) {
+                grid-column: span 12;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .settings-container {
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            /* Full width cards on mobile */
+            .settings-container .settings-card {
+                grid-column: span 12;
+            }
+
+            .settings-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Card Animation and Hover Effects */
+        .settings-card {
+            transform-origin: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .settings-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Card Content Spacing */
+        .settings-card > * + * {
+            margin-top: 1.5rem;
+        }
+
+        /* Form Grid Layout Enhancement */
+        .form-group-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 576px) {
+            .form-group-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Profile Header Responsive Enhancement */
+        .profile-header {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 2rem;
+            align-items: start;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 576px) {
+            .profile-header {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                text-align: center;
+            }
+
+            .profile-info {
+                text-align: center;
+            }
+        }
+
+        /* Notification Settings Enhancement */
+        .toggle-switch {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            background: var(--background-color);
+            margin-bottom: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-switch:hover {
+            background: #f1f5f9;
+        }
+
+        /* Security Settings Enhancement */
+        .security-settings-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .danger-zone {
+            margin-top: auto;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            background: rgba(239, 68, 68, 0.05);
+            border: 2px dashed var(--danger-color);
+        }
+
+        /* Loading States */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        /* Focus States */
+        :focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/img/images.png" alt="NOCMA Logo">
+                <span>NOCMA Portal</span>
+            </div>
+            <nav>
+                <div class="nav-item" onclick="window.location.href='user_dashboard.html'">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='orders.html'">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Orders</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='history.html'">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='deliveries.html'">
+                    <i class="fas fa-truck"></i>
+                    <span>Deliveries</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='invoices.html'">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Invoices</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+                <div class="nav-item" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Settings</h1>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">
+                        <img src="" alt="User Avatar" id="headerProfilePic">
+                        <span id="userInitials">U</span>
+                    </div>
+                    <div>
+                        <h3 id="userName">Loading...</h3>
+                        <p id="userEmail" class="text-secondary">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-container">
+                <!-- Profile Settings -->
+                <div class="settings-card">
+                    <h2><i class="fas fa-user"></i> Profile Settings</h2>
+                    <form id="profileForm">
+                        <div class="profile-header">
+                            <div class="profile-picture-container">
+                                <div class="profile-picture" id="profilePicturePreview">
+                                    <img src="" alt="" id="currentProfilePic">
+                                    <div class="profile-picture-overlay">
+                                        <i class="fas fa-camera"></i>
+                                        <span>Change Photo</span>
+                                    </div>
+                                </div>
+                                <input type="file" id="profilePicture" name="profilePicture" accept="image/*" hidden>
+                                <div class="profile-picture-actions">
+                                    <button type="button" class="btn btn-outline" id="changeProfilePicBtn">
+                                        <i class="fas fa-camera"></i> Change Photo
+                                    </button>
+                                    <button type="button" class="btn btn-outline btn-danger" id="removeProfilePicBtn">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="profile-info">
+                                <h3 id="previewName">Company Name</h3>
+                                <p id="previewEmail" class="text-secondary">email@example.com</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group-grid">
+                            <div class="form-group">
+                                <label for="companyName">Company Name</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-building"></i>
+                                    <input type="text" id="companyName" name="companyName" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactPerson">Contact Person</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="contactPerson" name="contactPerson" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group-grid">
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-envelope"></i>
+                                    <input type="email" id="email" name="email" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-phone"></i>
+                                    <input type="tel" id="phone" name="phone" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Business Address</label>
+                            <div class="input-with-icon textarea">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <textarea id="address" name="address" rows="3" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="businessType">Business Type</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-briefcase"></i>
+                                <select id="businessType" name="businessType" required>
+                                    <option value="">Select Business Type</option>
+                                    <option value="retailer">Fuel Retailer</option>
+                                    <option value="distributor">Fuel Distributor</option>
+                                    <option value="transporter">Transport Company</option>
+                                    <option value="industrial">Industrial Consumer</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="licenseNumber">Business License Number</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-certificate"></i>
+                                <input type="text" id="licenseNumber" name="licenseNumber" required>
+                            </div>
+                        </div>
+
+                        <div class="actions">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="settings-card">
+                    <h2><i class="fas fa-bell"></i> Notification Settings</h2>
+                    <div class="toggle-switch">
+                        <label for="emailNotifications">Email Notifications</label>
+                        <label class="switch">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="orderUpdates">Order Updates</label>
+                        <label class="switch">
+                            <input type="checkbox" id="orderUpdates" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="deliveryAlerts">Delivery Alerts</label>
+                        <label class="switch">
+                            <input type="checkbox" id="deliveryAlerts" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="invoiceNotifications">Invoice Notifications</label>
+                        <label class="switch">
+                            <input type="checkbox" id="invoiceNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="actions">
+                        <button type="button" class="btn btn-primary" onclick="saveNotificationSettings()">
+                            <i class="fas fa-save"></i> Save Preferences
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="settings-card">
+                    <h2><i class="fas fa-shield-alt"></i> Security Settings</h2>
+                    <form id="securityForm">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" name="currentPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" name="newPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        <div class="actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-key"></i> Change Password
+                            </button>
+                        </div>
+                    </form>
+                    <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border-color);">
+                    <div class="danger-zone">
+                        <h3 style="color: var(--danger-color); margin-bottom: 1rem;">Danger Zone</h3>
+                        <button type="button" class="btn btn-danger" onclick="deleteAccount()">
+                            <i class="fas fa-trash-alt"></i> Delete Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module" src="settings.js"></script>
+</body>
+</html> 

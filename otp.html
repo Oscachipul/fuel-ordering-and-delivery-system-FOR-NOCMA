@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="register.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container" id="otp-container">
+            <form action="#">
+                <img src="images.png" alt="" class="logo">
+                <h2>OTP Verification</h2>
+                <p>Enter the OTP sent to your email or phone.</p>
+                <input type="text" placeholder="Enter OTP" id="otpInput" required>
+                <button type="submit" id="verifyOtp">Verify OTP</button>
+                <p>Didn't receive the OTP? <button type="button" id="resendOtp">Request Another OTP</button></p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

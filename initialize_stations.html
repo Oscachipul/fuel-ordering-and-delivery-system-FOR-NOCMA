@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Initialize Filling Stations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h2>Initialize Filling Stations</h2>
+    <button id="initButton" class="button">Initialize Stations</button>
+    <div id="status"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc,
+            getDocs,
+            query,
+            where,
+            deleteDoc
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBX4Uy9QkFnQnwNHXO_Yp5h5yOXHvQDLaM",
+            authDomain: "national-oil-company-malawi.firebaseapp.com",
+            projectId: "national-oil-company-malawi",
+            storageBucket: "national-oil-company-malawi.appspot.com",
+            messagingSenderId: "965033674381",
+            appId: "1:965033674381:web:c9c9f10e0e4e8c7e2c5443"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Sample filling stations data
+        const stations = [
+            {
+                name: "Puma Energy Lilongwe City Center",
+                company: "Puma Energy",
+                address: "Paul Kagame Road, City Center",
+                district: "Lilongwe",
+                region: "Central",
+                status: "active",
+                coordinates: {
+                    latitude: -13.9626,
+                    longitude: 33.7741
+                }
+            },
+            {
+                name: "Total Energies Blantyre Main",
+                company: "Total Energies",
+                address: "Victoria Avenue, Blantyre CBD",
+                district: "Blantyre",
+                region: "Southern",
+                status: "active",
+                coordinates: {
+                    latitude: -15.7861,
+                    longitude: 35.0058
+                }
+            },
+            {
+                name: "Mount Soche Filling Station",
+                company: "Mount Soche",
+                address: "Chipembere Highway",
+                district: "Blantyre",
+                region: "Southern",
+                status: "active",
+                coordinates: {
+                    latitude: -15.7867,
+                    longitude: 35.0072
+                }
+            },
+            {
+                name: "Puma Energy Mzuzu",
+                company: "Puma Energy",
+                address: "M1 Highway, Mzuzu",
+                district: "Mzuzu",
+                region: "Northern",
+                status: "active",
+                coordinates: {
+                    latitude: -11.4657,
+                    longitude: 34.0196
+                }
+            },
+            {
+                name: "Total Energies Zomba",
+                company: "Total Energies",
+                address: "M3 Road, Zomba",
+                district: "Zomba",
+                region: "Southern",
+                status: "active",
+                coordinates: {
+                    latitude: -15.3833,
+                    longitude: 35.3333
+                }
+            }
+        ];
+
+        const statusDiv = document.getElementById('status');
+        const initButton = document.getElementById('initButton');
+
+        // Function to show status message
+        function showStatus(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = `status ${isError ? 'error' : 'success'}`;
+            div.textContent = message;
+            statusDiv.prepend(div);
+        }
+
+        // Function to clear existing stations
+        async function clearExistingStations() {
+            const stationsRef = collection(db, "filling_stations");
+            const querySnapshot = await getDocs(stationsRef);
+            
+            for (const doc of querySnapshot.docs) {
+                await deleteDoc(doc.ref);
+                showStatus(`Cleared existing station: ${doc.data().name}`);
+            }
+        }
+
+        // Function to add stations to Firestore
+        async function addStations() {
+            try {
+                initButton.disabled = true;
+                statusDiv.innerHTML = '';
+                showStatus('Starting initialization...');
+
+                // First sign in as admin
+                await signInWithEmailAndPassword(auth, "admin@nocma.com", "admin123");
+                showStatus('Admin authentication successful');
+
+                // Clear existing stations
+                await clearExistingStations();
+                showStatus('Cleared existing stations');
+
+                // Add new stations
+                for (const station of stations) {
+                    await addDoc(collection(db, "filling_stations"), {
+                        ...station,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    });
+                    showStatus(`Added station: ${station.name}`);
+                }
+
+                // Verify stations were added
+                const stationsRef = collection(db, "filling_stations");
+                const q = query(stationsRef, where("status", "==", "active"));
+                const querySnapshot = await getDocs(q);
+                
+                showStatus(`Successfully added ${querySnapshot.size} stations!`);
+                showStatus('Initialization complete! You can now close this page and refresh your orders page.');
+
+            } catch (error) {
+                console.error("Error:", error);
+                showStatus(`Error: ${error.message}`, true);
+                if (error.code === 'permission-denied') {
+                    showStatus('Permission denied. Make sure you have admin rights and the correct Firestore rules are set.', true);
+                }
+            } finally {
+                initButton.disabled = false;
+            }
+        }
+
+        // Add click handler to button
+        initButton.addEventListener('click', addStations);
+    </script>
+</body>
+</html> 

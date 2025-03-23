@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - NOCMA</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="history.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Excel/CSV Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --background-color: #f8fafc;
+            --sidebar-color: #1e293b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --border-color: #e2e8f0;
+        }
+
+        /* User Avatar Styles */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .user-avatar #headerInitials {
+            z-index: 1;
+            font-size: 1.2rem;
+        }
+
+        .user-avatar img:not([src]) + #headerInitials,
+        .user-avatar img[src=""] + #headerInitials,
+        .user-avatar img.error + #headerInitials {
+            display: block;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            margin-left: 1rem;
+        }
+
+        .user-details #userName {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-details #userEmail {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--sidebar-color) 0%, #0f172a 100%);
+            padding: 1.5rem;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            transition: all 0.3s ease;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 1rem;
+        }
+
+        .sidebar-header img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header span {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            text-transform: uppercase;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-item i {
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-item span {
+            font-weight: 500;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .text-secondary {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .summary-card-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .summary-card-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: #f1f5f9;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3b82f6;
+        }
+
+        .summary-card-value {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .summary-card-value .count {
+            font-size: 1.875rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .summary-card-value .trend {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .summary-card-value .trend.positive {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .summary-card-value .trend.negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .summary-card-value .trend i {
+            font-size: 0.75rem;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        /* Filters Section */
+        .filters-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .filters-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .filters-form {
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Orders Table Styles */
+        .orders-table-wrapper {
+            width: 100%;
+            overflow: hidden;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .orders-table {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .orders-table table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px; /* Minimum width to ensure readability */
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 1.25rem 1rem;
+            text-align: left;
+        }
+
+        .orders-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .orders-table td {
+            vertical-align: middle;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .orders-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .orders-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .orders-table .font-semibold {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .orders-table .text-secondary {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Order Info Styles */
+        .order-info, .fuel-info, .payment-info, .delivery-info, .status-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .order-id {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1.1rem;
+        }
+
+        .order-date, .order-time, .fuel-type, .quantity, .price-per-liter,
+        .station-name, .station-address, .amount, .payment-method,
+        .service-fee, .delivery-fee, .delivery-address, .delivery-date,
+        .delivery-time, .additional-notes, .status-details {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .order-date i, .order-time i, .fuel-type i, .quantity i,
+        .price-per-liter i, .station-name i, .station-address i,
+        .amount i, .payment-method i, .service-fee i, .delivery-fee i,
+        .delivery-address i, .delivery-date i, .delivery-time i,
+        .additional-notes i, .status-details i {
+            color: #2563eb;
+            width: 16px;
+            text-align: center;
+        }
+
+        /* Status Badge Styles */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: capitalize;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .status-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Payment Status Styles */
+        .status-badge.status-paid {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.status-paid::before {
+            background-color: #166534;
+        }
+
+        .status-badge.status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.status-pending::before {
+            background-color: #92400e;
+        }
+
+        .status-badge.status-failed {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge.status-failed::before {
+            background-color: #991b1b;
+        }
+
+        .status-badge.status-cancelled {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .status-badge.status-cancelled::before {
+            background-color: #4b5563;
+        }
+
+        /* Delivery Status Styles */
+        .status-badge.status-delivered {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.status-delivered::before {
+            background-color: #166534;
+        }
+
+        .status-badge.status-processing {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-badge.status-processing::before {
+            background-color: #1e40af;
+        }
+
+        .status-badge.status-in-transit {
+            background-color: #e0f2fe;
+            color: #075985;
+        }
+
+        .status-badge.status-in-transit::before {
+            background-color: #075985;
+        }
+
+        /* Action Buttons Styles */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-start;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .view-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .view-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .cancel-btn {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .cancel-btn:hover {
+            background-color: #fecaca;
+            transform: translateY(-1px);
+        }
+
+        /* No Orders Message */
+        .no-orders {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .orders-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+                padding: 1rem;
+            }
+
+            .sidebar-header img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .sidebar-header span,
+            .nav-item span {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 80px;
+            }
+
+            .nav-item {
+                justify-content: center;
+                padding: 1rem;
+            }
+
+            .nav-item i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast-fade-out {
+            animation: slideOut 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast-icon {
+            font-size: 1.2rem;
+        }
+
+        .toast-message {
+            flex: 1;
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .toast-error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .toast-warning {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .toast-info {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* Error Message Styles */
+        .error-message {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-message h3 {
+            color: var(--danger-color);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .error-message p {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .error-message ol,
+        .error-message ul {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .error-message li {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            padding: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: sticky;
+            top: 0;
+            background: white;
+            border-radius: 1rem 1rem 0 0;
+            z-index: 1;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .company-info {
+            text-align: left;
+        }
+
+        .company-info h2 {
+            color: var(--primary-color);
+            margin: 0.5rem 0;
+            font-size: 1.5rem;
+        }
+
+        .company-info p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .invoice-title {
+            text-align: right;
+        }
+
+        .invoice-title h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .invoice-title p {
+            color: var(--text-secondary);
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+            transition: color 0.2s;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        .close-modal:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .invoice-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .billing-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .section p {
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        .items-table {
+            margin: 2rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .items-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .items-table th {
+            background-color: #f8fafc;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .items-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .items-table tfoot tr {
+            background-color: #f8fafc;
+        }
+
+        .items-table tfoot td {
+            padding: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .items-table tr.total {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .items-table tr.total td {
+            color: white;
+            font-weight: 600;
+        }
+
+        .payment-info, .additional-notes {
+            margin-top: 2rem;
+        }
+
+        .payment-info h3, .additional-notes h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .payment-info p, .additional-notes p {
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        .invoice-footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border-color);
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .invoice-footer p {
+            margin: 0.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 100%;
+                height: 100%;
+                max-height: none;
+                border-radius: 0;
+            }
+
+            .modal-header {
+                border-radius: 0;
+                padding: 1rem;
+            }
+
+            .invoice-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .invoice-title {
+                text-align: left;
+            }
+
+            .billing-info {
+                grid-template-columns: 1fr;
+            }
+
+            .items-table {
+                overflow-x: auto;
+            }
+        }
+
+        /* Pagination Controls */
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        @media screen and (max-width: 640px) {
+            .pagination-controls {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .pagination-buttons {
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+
+            .pagination-info {
+                width: 100%;
+            }
+        }
+
+        /* Fuel List Styles */
+        .fuel-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .fuel-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .fuel-type {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-right: 1rem;
+        }
+
+        .fuel-quantity {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .total-quantity {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        /* Loading and Empty States */
+        .loading-spinner,
+        .empty-state {
+            padding: 2rem;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .error-message {
+            padding: 2rem;
+            text-align: center;
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/img/images.png" alt="NOCMA Logo">
+                <span>NOCMA Portal</span>
+            </div>
+            <nav>
+                <div class="nav-item" onclick="window.location.href='user_dashboard.html'">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='orders.html'">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Orders</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='deliveries.html'">
+                    <i class="fas fa-truck"></i>
+                    <span>Deliveries</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='invoices.html'">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Invoices</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='settings.html'">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+                <div class="nav-item" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>History</h1>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">
+                        <img src="" alt="User Avatar" id="headerProfilePic">
+                        <span id="headerInitials">U</span>
+                    </div>
+                    <div class="user-details">
+                        <h3 id="userName">Loading...</h3>
+                        <p id="userEmail" class="text-secondary">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-card-header">
+                        <span class="summary-card-title">Today's Orders</span>
+                        <div class="summary-card-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                    </div>
+                    <div class="summary-card-value" id="dailyOrders">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-header">
+                        <span class="summary-card-title">This Week</span>
+                        <div class="summary-card-icon">
+                            <i class="fas fa-calendar-week"></i>
+                        </div>
+                    </div>
+                    <div class="summary-card-value" id="weeklyOrders">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-header">
+                        <span class="summary-card-title">This Month</span>
+                        <div class="summary-card-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                    <div class="summary-card-value" id="monthlyOrders">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-header">
+                        <span class="summary-card-title">This Year</span>
+                        <div class="summary-card-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="summary-card-value" id="yearlyOrders">0</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Fuel Type Distribution</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="fuelTypeChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Quantity Trends</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="quantityTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="filters-section">
+                <div class="filters-header">
+                    <h3>Filter Orders</h3>
+                    <div class="report-actions">
+                        <button id="generateReportBtn" class="btn btn-primary">
+                            <i class="fas fa-file-alt"></i> Generate Report
+                        </button>
+                    </div>
+                </div>
+                <form id="filterForm" style="display: flex; flex-direction: row; gap: 2rem; align-items: center; justify-content: space-between;">
+                    <div class="form-row" style="display: flex; flex-direction: row; gap: 2rem; align-items: center; justify-content: space-between; width: 100%;">
+                        <div class="form-group" style="display: flex; flex-direction: row; gap: 1rem; align-items: center; flex: 1;">
+                            <i class="fas fa-gas-pump" style="font-size: 1.2rem; color: var(--text-secondary);"></i>
+                            <select class="form-control" id="fuelType" style="width: 100%;">
+                                <option value="">All Types</option>
+                                <option value="Petrol">Petrol</option>
+                                <option value="Diesel">Diesel</option>
+                                <option value="Paraffin">Paraffin</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display: flex; flex-direction: row; gap: 1rem; align-items: center; flex: 1;">
+                            <i class="fas fa-calendar-alt" style="font-size: 1.2rem; color: var(--text-secondary);"></i>
+                            <input type="date" class="form-control" id="dateFrom" style="width: 100%;">
+                        </div>
+                        <div class="form-group" style="display: flex; flex-direction: row; gap: 1rem; align-items: center; flex: 1;">
+                            <i class="fas fa-calendar-check" style="font-size: 1.2rem; color: var(--text-secondary);"></i>
+                            <input type="date" class="form-control" id="dateTo" style="width: 100%;">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Report Modal -->
+            <div id="reportModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Generate Report</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="reportForm">
+                            <div class="form-group">
+                                <label for="reportType">Report Type</label>
+                                <select class="form-control" id="reportType" required>
+                                    <option value="summary">Summary Report</option>
+                                    <option value="detailed">Detailed Report</option>
+                                    <option value="financial">Financial Report</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reportFormat">Format</label>
+                                <select class="form-control" id="reportFormat" required>
+                                    <option value="pdf">PDF</option>
+                                    <option value="excel">Excel</option>
+                                    <option value="csv">CSV</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reportPeriod">Time Period</label>
+                                <select class="form-control" id="reportPeriod" required>
+                                    <option value="today">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                    <option value="year">This Year</option>
+                                    <option value="custom">Custom Range</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reportTitle">Report Title</label>
+                                <input type="text" class="form-control" id="reportTitle" placeholder="Enter report title">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="includeCharts" checked>
+                                    Include Charts
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="includeTables" checked>
+                                    Include Tables
+                                </label>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Generate Report</button>
+                                <button type="button" class="btn btn-secondary" onclick="closeReportModal()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="orders-table-wrapper">
+                <div class="orders-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Product</th>
+                                <th>Payment Status</th>
+                                <th>Delivery Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- Orders will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-controls">
+                    <div class="pagination-info">
+                        Showing <span id="currentPageStart">1</span> to <span id="currentPageEnd">4</span> of <span id="totalOrders">0</span> orders
+                    </div>
+                    <div class="pagination-buttons">
+                        <button id="prevPage" class="btn btn-secondary">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </button>
+                        <button id="nextPage" class="btn btn-primary">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="shared.js"></script>
+    <script type="module" src="history.js"></script>
+</body>
+</html> 
